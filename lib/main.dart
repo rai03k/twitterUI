@@ -40,6 +40,8 @@ class _TwitterUIState extends State<TwitterUI> {
     return Scaffold(
       appBar: AppBar(
         title: Text('ホーム'),
+        elevation: 0,
+        backgroundColor: Colors.white,
       ),
       body: _screen[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -73,14 +75,152 @@ class _TwitterUIState extends State<TwitterUI> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
 
 class HomeScreen extends StatelessWidget {
+  List<String> text = [
+    "mainAxisAlignmentやcrossAxisAlignmentについて詳しく学習できた",
+    "Flutter楽しい"
+  ];
+
   @override
   Widget build(BuildContext context){
-    return Container();
+    return ListView(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            twitterAvater(),
+            tweetBody(text[0]),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            twitterAvater(),
+            tweetBody(text[1]),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget twitterAvater() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.all(10.0),
+          width: 52,
+          height: 52,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: AssetImage('/Users/raizo/AppProjects/twitter_ui/lib/images/rai.jpeg')
+            )
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget tweetBody(tweet) {
+    return Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            tweetHeader(),
+            tweetText(tweet),
+            tweetIcon(),
+          ],
+        ),
+    );
+  }
+
+  Widget tweetHeader(){
+    return Row(
+      children: [
+        Container(
+          margin: EdgeInsets.only(right: 5.0),
+          child: Text(
+            'Rai',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        Text(
+          '@RaiAppDev・5時間',
+          style: TextStyle(
+              color: Colors.grey,
+              fontSize: 16,
+            ),
+          ),
+        Spacer(),
+        IconButton(
+          onPressed: (){},
+          icon: Icon(
+            Icons.more_horiz,
+          ),
+          color: Colors.grey,
+        ),
+      ],
+    );
+  }
+
+  Widget tweetText(tweet){
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(right: 10.0),
+          child: Text(
+            tweet,
+            style: TextStyle(
+                fontSize: 16,
+                overflow: TextOverflow.clip
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget tweetIcon() {
+    return Container(
+      margin: EdgeInsets.only(top: 10,right: 30),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          tweetIconButton(Icons.chat_bubble_outline),
+          tweetIconButton(Icons.cached),
+          tweetIconButton(Icons.favorite_border),
+          tweetIconButton(Icons.ios_share),
+        ],
+      ),
+    );
+  }
+
+  Widget tweetIconButton(icon){
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: Colors.grey,
+          size: 20,
+        ),
+      ],
+    );
   }
 }
 
