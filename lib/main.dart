@@ -5,8 +5,11 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'TwitterUI',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: TwitterUI(),
     );
   }
@@ -77,7 +80,13 @@ class _TwitterUIState extends State<TwitterUI> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-
+          Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (context) {
+                  return EditTweet();
+                },
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),
@@ -95,19 +104,32 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context){
     return ListView(
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            twitterAvater(),
-            tweetBody(text[0]),
-          ],
+        Container(
+          color: Colors.white,
+          padding: EdgeInsets.only(bottom: 10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              twitterAvater(),
+              tweetBody(text[0]),
+            ],
+          ),
         ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            twitterAvater(),
-            tweetBody(text[1]),
-          ],
+        const Divider(
+          height: 1,
+          thickness: 0.5,
+          color: Colors.grey,
+        ),
+        Container(
+          color: Colors.white,
+          padding: EdgeInsets.only(bottom: 10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              twitterAvater(),
+              tweetBody(text[1]),
+            ],
+          ),
         ),
       ],
     );
@@ -218,6 +240,97 @@ class HomeScreen extends StatelessWidget {
           icon,
           color: Colors.grey,
           size: 20,
+        ),
+      ],
+    );
+  }
+}
+
+class EditTweet extends StatefulWidget {
+  const EditTweet({Key? key}) : super(key: key);
+
+  @override
+  State<EditTweet> createState() => _EditTweetState();
+}
+
+class _EditTweetState extends State<EditTweet> {
+  var a = HomeScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            editAppbar(context),
+            editTweet(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget editAppbar(context) {
+    return Container(
+      padding: EdgeInsets.only(top: 48.0, left: 12.0, right: 12.0),
+      child: Row(
+        children: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'キャンセル',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          Spacer(),
+          Container(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+                elevation: 0,
+                shape: StadiumBorder(),
+              ),
+              child: const Text(
+                'ツイートする',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget editTweet() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        a.twitterAvater(),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(top: 10.0, right: 5.0),
+            child: TextField(
+              autofocus: true,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'いまどうしてる？',
+              ),
+            ),
+          ),
         ),
       ],
     );
