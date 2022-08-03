@@ -78,68 +78,80 @@ class _TwitterUIState extends State<TwitterUI> {
           ),
         ],
       ),
+    );
+  }
+}
+
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  static List<String> tweets = [];
+  static List<String> reversetweets = [];
+  static List dates = [];
+  static List reversedates = [];
+  var now = null;
+
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        padding: EdgeInsets.all(0),
+        child: ListView.builder(
+          itemCount: tweets.length,
+          itemBuilder: (context, index){
+            final tweet = reversetweets[index];
+            final date = reversedates[index];
+            return Container(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      twitterAvater(),
+                      tweetBody(tweet, date),
+                    ],
+                  ),
+                  Divider(),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          Navigator.of(context).push(
+        onPressed: () async {
+          final newtweet = await Navigator.of(context).push(
             MaterialPageRoute(
-                builder: (context) {
-                  return EditTweet();
-                },
+              builder: (context) {
+                return EditTweet();
+              },
             ),
           );
+          if (newtweet != null){
+            setState(() {
+              tweets.add(newtweet.toString());
+              now = DateTime.now();
+              dates.add(now);
+              reversetweets = tweets.reversed.toList();
+              reversedates = dates.reversed.toList();
+            });
+          }
         },
         child: const Icon(Icons.add),
       ),
     );
   }
-}
-
-class HomeScreen extends StatelessWidget {
-  List<String> text = [
-    "mainAxisAlignmentやcrossAxisAlignmentについて詳しく学習できた",
-    "Flutter楽しい"
-  ];
-
-  @override
-  Widget build(BuildContext context){
-    return ListView(
-      children: [
-        Container(
-          color: Colors.white,
-          padding: EdgeInsets.only(bottom: 10.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              twitterAvater(),
-              tweetBody(text[0]),
-            ],
-          ),
-        ),
-        const Divider(
-          height: 1,
-          thickness: 0.5,
-          color: Colors.grey,
-        ),
-        Container(
-          color: Colors.white,
-          padding: EdgeInsets.only(bottom: 10.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              twitterAvater(),
-              tweetBody(text[1]),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget twitterAvater() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
+    return Container(
           margin: const EdgeInsets.all(10.0),
           width: 52,
           height: 52,
@@ -148,20 +160,18 @@ class HomeScreen extends StatelessWidget {
             image: DecorationImage(
               fit: BoxFit.fill,
               image: AssetImage('/Users/raizo/AppProjects/twitter_ui/lib/images/rai.jpeg')
-            )
+            ),
           ),
-        ),
-      ],
-    );
+        );
   }
 
-  Widget tweetBody(tweet) {
+  Widget tweetBody(tweet, date) {
     return Expanded(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            tweetHeader(),
+            tweetHeader(date),
             tweetText(tweet),
             tweetIcon(),
           ],
@@ -169,7 +179,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget tweetHeader(){
+  Widget tweetHeader(date){
     return Row(
       children: [
         Container(
@@ -183,12 +193,13 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         Text(
-          '@RaiAppDev・5時間',
+          '@RaiAppDev・',
           style: TextStyle(
               color: Colors.grey,
               fontSize: 16,
             ),
           ),
+        tweetTime(date),
         Spacer(),
         IconButton(
           onPressed: (){},
@@ -198,6 +209,30 @@ class HomeScreen extends StatelessWidget {
           color: Colors.grey,
         ),
       ],
+    );
+  }
+
+  Widget tweetTime(date){
+    var n = DateTime.now();
+    var d = n.difference(date);
+    if (d.inSeconds <= 60){
+      return tT(d.inSeconds.toString(), "秒");
+    } else if(d.inMinutes <= 60){
+      return tT(d.inMinutes.toString(), "分");
+    } else if(d.inHours < 24){
+      return tT(d.inHours.toString(), "時間");
+    } else {
+      return tT(d.inDays.toString(), "日");
+    }
+  }
+
+  Widget tT(time, tanni){
+    return Text(
+      "$time" + tanni,
+      style: TextStyle(
+        color: Colors.grey,
+        fontSize: 16,
+      ),
     );
   }
 
@@ -220,7 +255,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget tweetIcon() {
     return Container(
-      margin: EdgeInsets.only(top: 10,right: 30),
+      margin: EdgeInsets.only(top: 10,right: 62, bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -254,7 +289,8 @@ class EditTweet extends StatefulWidget {
 }
 
 class _EditTweetState extends State<EditTweet> {
-  var a = HomeScreen();
+  var a = _HomeScreenState();
+  String _text = "";
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +328,7 @@ class _EditTweetState extends State<EditTweet> {
           Container(
             child: ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(_text);
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.blue,
@@ -322,6 +358,11 @@ class _EditTweetState extends State<EditTweet> {
           child: Padding(
             padding: EdgeInsets.only(top: 10.0, right: 5.0),
             child: TextField(
+              onChanged: (String value){
+                setState(() {
+                  _text = value;
+                });
+              },
               autofocus: true,
               keyboardType: TextInputType.multiline,
               maxLines: null,
