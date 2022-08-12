@@ -1,6 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:twitter_ui/dm.dart';
+import 'package:twitter_ui/notification.dart';
+import 'package:twitter_ui/search.dart';
 
-void main() => runApp(MyApp());
+import 'firebase_options.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  return runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -32,20 +46,15 @@ class _TwitterUIState extends State<TwitterUI> {
   int _selectedIndex = 0;
 
   @override
-  void _onTap(int index){
+  void _onTap(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('ホーム'),
-        elevation: 0,
-        backgroundColor: Colors.white,
-      ),
       body: _screen[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -55,17 +64,16 @@ class _TwitterUIState extends State<TwitterUI> {
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: false,
         showUnselectedLabels: false,
-        items: const<BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             label: 'home',
             activeIcon: Icon(Icons.home),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search_sharp),
-            label: 'search',
-            activeIcon: Icon(Icons.search)
-          ),
+              icon: Icon(Icons.search_sharp),
+              label: 'search',
+              activeIcon: Icon(Icons.search)),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications_none_sharp),
             label: 'tuuti',
@@ -82,7 +90,6 @@ class _TwitterUIState extends State<TwitterUI> {
   }
 }
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -98,14 +105,39 @@ class _HomeScreenState extends State<HomeScreen> {
   var now = null;
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: FaIcon(
+          FontAwesomeIcons.twitter,
+          color: Colors.blue,
+          size: 28,
+        ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: CircleAvatar(
+            backgroundImage: AssetImage(
+                '/Users/raizo/AppProjects/twitter_ui/lib/images/rai.jpeg'),
+          ),
+          onPressed: () {},
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.auto_awesome_outlined,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
       body: Container(
         color: Colors.white,
         padding: EdgeInsets.all(0),
         child: ListView.builder(
           itemCount: tweets.length,
-          itemBuilder: (context, index){
+          itemBuilder: (context, index) {
             final tweet = reversetweets[index];
             final date = reversedates[index];
             return Container(
@@ -135,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           );
-          if (newtweet != null){
+          if (newtweet != null) {
             setState(() {
               tweets.add(newtweet.toString());
               now = DateTime.now();
@@ -152,34 +184,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget twitterAvater() {
     return Container(
-          margin: const EdgeInsets.all(10.0),
-          width: 52,
-          height: 52,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              fit: BoxFit.fill,
-              image: AssetImage('/Users/raizo/AppProjects/twitter_ui/lib/images/rai.jpeg')
-            ),
-          ),
-        );
+      margin: const EdgeInsets.all(10.0),
+      width: 56,
+      height: 56,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        image: DecorationImage(
+            fit: BoxFit.fill,
+            image: AssetImage(
+                '/Users/raizo/AppProjects/twitter_ui/lib/images/rai.jpeg')),
+      ),
+    );
   }
 
   Widget tweetBody(tweet, date) {
     return Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            tweetHeader(date),
-            tweetText(tweet),
-            tweetIcon(),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          tweetHeader(date),
+          tweetText(tweet),
+          tweetIcon(),
+        ],
+      ),
     );
   }
 
-  Widget tweetHeader(date){
+  Widget tweetHeader(date) {
     return Row(
       children: [
         Container(
@@ -195,14 +227,14 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           '@RaiAppDev・',
           style: TextStyle(
-              color: Colors.grey,
-              fontSize: 16,
-            ),
+            color: Colors.grey,
+            fontSize: 16,
           ),
+        ),
         tweetTime(date),
         Spacer(),
         IconButton(
-          onPressed: (){},
+          onPressed: () {},
           icon: Icon(
             Icons.more_horiz,
           ),
@@ -212,21 +244,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget tweetTime(date){
+  Widget tweetTime(date) {
     var n = DateTime.now();
     var d = n.difference(date);
-    if (d.inSeconds <= 60){
+    if (d.inSeconds <= 60) {
       return tT(d.inSeconds.toString(), "秒");
-    } else if(d.inMinutes <= 60){
+    } else if (d.inMinutes <= 60) {
       return tT(d.inMinutes.toString(), "分");
-    } else if(d.inHours < 24){
+    } else if (d.inHours < 24) {
       return tT(d.inHours.toString(), "時間");
     } else {
       return tT(d.inDays.toString(), "日");
     }
   }
 
-  Widget tT(time, tanni){
+  Widget tT(time, tanni) {
     return Text(
       "$time" + tanni,
       style: TextStyle(
@@ -236,17 +268,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget tweetText(tweet){
+  Widget tweetText(tweet) {
     return Column(
       children: [
         Container(
           margin: EdgeInsets.only(right: 10.0),
           child: Text(
             tweet,
-            style: TextStyle(
-                fontSize: 16,
-                overflow: TextOverflow.clip
-            ),
+            style: TextStyle(fontSize: 16, overflow: TextOverflow.clip),
           ),
         ),
       ],
@@ -255,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget tweetIcon() {
     return Container(
-      margin: EdgeInsets.only(top: 10,right: 62, bottom: 10),
+      margin: EdgeInsets.only(top: 10, right: 62, bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -268,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget tweetIconButton(icon){
+  Widget tweetIconButton(icon) {
     return Row(
       children: [
         Icon(
@@ -291,6 +320,17 @@ class EditTweet extends StatefulWidget {
 class _EditTweetState extends State<EditTweet> {
   var a = _HomeScreenState();
   String _text = "";
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  Future<void> addFirestoreUser() {
+    return users
+        .add({
+          'name': "Rai",
+          'tweet': _text,
+          'date': DateTime.now(),
+        })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -328,6 +368,7 @@ class _EditTweetState extends State<EditTweet> {
           Container(
             child: ElevatedButton(
               onPressed: () {
+                addFirestoreUser();
                 Navigator.of(context).pop(_text);
               },
               style: ElevatedButton.styleFrom(
@@ -358,7 +399,7 @@ class _EditTweetState extends State<EditTweet> {
           child: Padding(
             padding: EdgeInsets.only(top: 10.0, right: 5.0),
             child: TextField(
-              onChanged: (String value){
+              onChanged: (String value) {
                 setState(() {
                   _text = value;
                 });
@@ -377,23 +418,3 @@ class _EditTweetState extends State<EditTweet> {
     );
   }
 }
-
-class SearchScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context){
-    return Container();
-  }
-}
-
-class NotificationScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context){
-    return Container();
-  }
-}class DmScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context){
-    return Container();
-  }
-}
-
