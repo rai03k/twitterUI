@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:twitter_ui/model/article_model.dart';
+import 'package:twitter_ui/services/api_service.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -41,8 +43,12 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  ApiService client = ApiService();
+
   @override
   Widget build(BuildContext context) {
+    final double deviceHeight = MediaQuery.of(context).size.height;
+    final double deviceWidth = MediaQuery.of(context).size.width;
     return DefaultTabController(
       length: 6,
       child: Scaffold(
@@ -82,27 +88,60 @@ class _SearchScreenState extends State<SearchScreen> {
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [
-            Center(
-              child: Text("おすすめ"),
-            ),
-            Center(
-              child: Text("トレンド"),
-            ),
-            Center(
-              child: Text("ニュース"),
-            ),
-            Center(
-              child: Text("スポーツ"),
-            ),
-            Center(
-              child: Text("エンターテイメント"),
-            ),
-            Center(
-              child: Text("COVID-19"),
-            ),
-          ],
+        body: FutureBuilder(
+          future: client.getArticle(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Article>> snapshot) {
+            if (snapshot.hasData) {
+              List<Article>? articles = snapshot.data;
+              return ListView.builder(
+                  itemCount: articles!.length,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Stack(
+                        alignment: AlignmentDirectional.bottomStart,
+                        children: [
+                          Container(
+                            height: deviceHeight * 0.3,
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                    articles[0].urlToImage.toString()),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            child: Text(
+                              articles[0].title.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 20),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          child: ListTile(
+                            title: Text(articles[index].title.toString()),
+                          ),
+                        ),
+                        Divider(),
+                      ],
+                    );
+                  });
+            }
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
         ),
       ),
     );
